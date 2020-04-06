@@ -1,0 +1,181 @@
+Log file DVTool_list.log opened
+
+
+... Echoing invocation command ...
+
+   dvtool -cmd_line_file cmd
+ 
+Reading DVTool project cfg file at '/projects/arbel/a.1/frozen/info/dvtool_project_file'
+Reading DVTool version cfg file (89) at '/projects/arbel/a.1/frozen/arbel_89/info/dvtool_version_file'
+CMD_LINE_FILE : cmd
+    VER 89
+    LIST list
+    SMH "list_a, 2"
+    +SMH "list_f, 2"
+    MSV
+    NOS
+End CMD_LINE_FILE (cmd)
+ 
+
+DVCheckArgs ...
+
+
+NOTE: UNSETENV_VARS : PROJ_PRV,PROJ_MODULES,PROJ_IMPORTED,PROJ_IMPORTED_PATH
+      DV_unsetenv PROJ_PRV
+      DV_unsetenv PROJ_MODULES
+      DV_unsetenv PROJ_IMPORTED
+      DV_unsetenv PROJ_IMPORTED_PATH
+
+
+Note: setenv VIPCAT_REV "VIPCAT_11.30.022"
+Note: setenv VIPCAT_PATH "/homes/cadence/VIPCAT_11.30.022"
+
+ Test Override Arguments:
+=========================
+SPLIT_MULTIHOST		list_a, 2;list_f, 2	# (+extended) SRC_is_cmd_line_file('cmd') +SRC_is_cmd_line_file('cmd')
+
+Total of: 4 items in the list
+Total:4 of them for run
+Setting SPECMAN_PRE_COMMANDS = "define SUB_VERSION_IS_A35;define ARBEL_CUT_VER_FUSE;set notify -severity=WARNING DEPR_WHEN_EXTEND_BEFORE_DEF; config gen -default_generator = IntelliGen "
+DV Tool Version 12.07 (dev) Started on Wed Mar  4 22:21:07 2020 by doronc
+DvTool Perl Version	: 5.010001		
+Project linked to	: arbel			(SRC_is_version_file)
+Project's revision	: a.1			
+Version to be used	: 89			(SRC_is_cmd_line_file('cmd'))
+Use sub version		: none			(SRC_is_default)
+Target host		: dv6			(SRC_is_dvtool_user_distribution)	
+Multihost mode		: yes			(SRC_is_default)
+Minimum disk space	: 50000 Kbytes		(SRC_is_version_file)
+Obligate OS		: none			(SRC_is_version_file)
+Flow Priority		: 1			
+Run before 'flow'	: none			(SRC_is_version_file)
+Run before verilog	: mkdir results		(SRC_is_version_file)
+Run after verilog	: none			(SRC_is_version_file)
+Run after finish	: none			(SRC_is_version_file)
+List File		: list			(SRC_is_cmd_line_file('cmd'))
+Maximum runtime		: unlimited time	(SRC_is_version_file)
+Use SDF process type	: none			(SRC_is_default)
+Run with comp_64bit	: yes			(SRC_is_version_file)
+Create new specman.v	: no			(SRC_is_default)
+Run verilog compilation	: no			(SRC_is_default)
+Incremental Compilation	: no			(SRC_is_default)
+Run e_option		: no			(SRC_is_default)
+Specman Version		: IES15279		(SRC_is_version_file)
+Specman Mode		: load			(SRC_is_version_file)
+Simulator Name		: nc (+vhdl)		(SRC_is_version_file)
+Sn Generator Name	: Igen			(SRC_is_version_file)
+NC IES Version		: IES15279		(SRC_is_version_file)
+NC IUS Version		: IES15279		(SRC_is_version_file)
+DEFAULT_SEED		: 89			(SRC_is_version_file)
+SET_SEED		: default		(SRC_is_version_file)
+			: 			
+SPECMAN_PRE_COMMANDS	: define SUB_VERSION_IS_A35;define ARBEL_CUT_VER_FUSE;set notify -severity=WARNING DEPR_WHEN_EXTEND_BEFORE_DEF; config gen -default_generator = IntelliGen 	
+ 
+Run tests from list
+LIST OF TESTS =
+gmac2_int_lbk 
+gmac3_ext_lbk 
+vurt_apbclk_62_5_sibclk_50 
+vurt_apbclk_125_sibclk_50 
+;
+--------------------------------------------------------------------------------
+Test: gmac2_int_lbk (seed=89)
+gmac2_int_lbk is Running from: '/tanap1/proj_dv1/arbel_dv/doronc/lists/v89/list2/gmac2_int_lbk'
+Run dv_run (12.07) on flow. SEE LOG FILE: flow_gmac2_int_lbk.dump
+     Flow returned control string is      . Job submitted, job-id = 62578 
+--------------------------------------------------------------------------------
+Test: gmac3_ext_lbk (seed=89)
+gmac3_ext_lbk is Running from: '/tanap1/proj_dv1/arbel_dv/doronc/lists/v89/list2/gmac3_ext_lbk'
+Run dv_run (12.07) on flow. SEE LOG FILE: flow_gmac3_ext_lbk.dump
+     Flow returned control string is      . Job submitted, job-id = 62579 
+--------------------------------------------------------------------------------
+Test: vurt_apbclk_62_5_sibclk_50 (seed=89)
+vurt_apbclk_62_5_sibclk_50 is Running from: '/tanap1/proj_dv1/arbel_dv/doronc/lists/v89/list2/vurt_apbclk_62_5_sibclk_50'
+Run dv_run (12.07) on flow. SEE LOG FILE: flow_vurt_apbclk_62_5_sibclk_50.dump
+     Flow returned control string is      . Job submitted, job-id = 62580 
+--------------------------------------------------------------------------------
+Test: vurt_apbclk_125_sibclk_50 (seed=89)
+vurt_apbclk_125_sibclk_50 is Running from: '/tanap1/proj_dv1/arbel_dv/doronc/lists/v89/list2/vurt_apbclk_125_sibclk_50'
+Run dv_run (12.07) on flow. SEE LOG FILE: flow_vurt_apbclk_125_sibclk_50.dump
+     Flow returned control string is      . Job submitted, job-id = 62581 
+               (Wed Mar  4 22:21:46 2020) 'gmac2_int_lbk'                   is active on taln75  (list_f bck) 	(job[0] = 62578)
+               (Wed Mar  4 22:21:46 2020) 'gmac3_ext_lbk'                   is active on taln75  (list_f bck) 	(job[1] = 62579)
+               (Wed Mar  4 22:21:46 2020) 'vurt_apbclk_62_5_sibclk_50'      is active on taln74  (list_a g8) 	(job[2] = 62580)
+               (Wed Mar  4 22:21:46 2020) 'vurt_apbclk_125_sibclk_50'       is active on taln70  (list_a g8) 	(job[3] = 62581)
+
+Set_Split_MultiHost
+    list_f 	 : 1
+    list_a 	 :  2
+Set_Split_MultiHost total = 3
+
+===========================================================
+=== Detect multihost_restart_3 
+=== Update multihost_3 (was multihost_4)
+===========================================================
+UpdateMultiHost - ReStartTests (down from 4 multihost to 3)
+UpdateMultiHost - Abort & Restart test[3] 'vurt_apbclk_125_sibclk_50' (62581)
+Killing test '62581'
+               (Wed Mar  4 22:21:50 2020) 'vurt_apbclk_125_sibclk_50' is done (log_sz=1, time=0:17 minutes status=MultiHostRestart)
+UpdateMultiHost - Abort & Restart test[1] 'gmac3_ext_lbk' (62579) in list_f (bck)
+Killing test '62579'
+               (Wed Mar  4 22:21:55 2020) 'gmac3_ext_lbk' is done (log_sz=1204, time=0:36 minutes status=MultiHostRestart)
+--------------------------------------------------------------------------------
+Test: gmac3_ext_lbk (seed=89)
+gmac3_ext_lbk is Running from: '/tanap1/proj_dv1/arbel_dv/doronc/lists/v89/list2/gmac3_ext_lbk'
+Run dv_run (12.07) on flow. SEE LOG FILE: flow_gmac3_ext_lbk.dump
+     Flow returned control string is      . Job submitted, job-id = 62582 
+--------------------------------------------------------------------------------
+Test: vurt_apbclk_125_sibclk_50 (seed=89)
+               (Wed Mar  4 22:21:58 2020) 'gmac3_ext_lbk'                   is active on taln70  (list_a g8) 	(job[1] = 62582)
+
+Set_Split_MultiHost
+    list_f 	 : 1
+    list_a 	 : 1
+Set_Split_MultiHost total = 2
+
+===========================================================
+=== Detect multihost_restart_2 
+=== Update multihost_2 (was multihost_3)
+===========================================================
+UpdateMultiHost - ReStartTests (down from 3 multihost to 2)
+UpdateMultiHost - Abort & Restart test[2] 'vurt_apbclk_62_5_sibclk_50' (62580)
+Killing test '62580'
+               (Wed Mar  4 22:22:33 2020) 'vurt_apbclk_62_5_sibclk_50' is done (log_sz=3808, time=1:11 minutes status=MultiHostRestart)
+               (Wed Mar  4 22:23:05 2020) 'gmac2_int_lbk' is done (log_sz=7140, time=1:58 minutes sysTime[228247] status=pass)
+
+Set_Split_MultiHost
+    list_f 	 : 1
+    list_a 	 : 2
+Set_Split_MultiHost total = 3
+
+===========================================================
+=== Detect multihost_3 
+=== Update multihost_3 (was multihost_2)
+===========================================================
+vurt_apbclk_125_sibclk_50 is Running from: '/tanap1/proj_dv1/arbel_dv/doronc/lists/v89/list2/vurt_apbclk_125_sibclk_50'
+Run dv_run (12.07) on flow. SEE LOG FILE: flow_vurt_apbclk_125_sibclk_50.dump
+     Flow returned control string is      . Job submitted, job-id = 62584 
+--------------------------------------------------------------------------------
+Test: vurt_apbclk_62_5_sibclk_50 (seed=89)
+vurt_apbclk_62_5_sibclk_50 is Running from: '/tanap1/proj_dv1/arbel_dv/doronc/lists/v89/list2/vurt_apbclk_62_5_sibclk_50'
+Run dv_run (12.07) on flow. SEE LOG FILE: flow_vurt_apbclk_62_5_sibclk_50.dump
+     Flow returned control string is      . Job submitted, job-id = 62585 
+               (Wed Mar  4 22:23:11 2020) 'vurt_apbclk_125_sibclk_50'       is active on taln75  (list_f bck) 	(job[0] = 62584)
+               (Wed Mar  4 22:23:11 2020) 'vurt_apbclk_62_5_sibclk_50'      is active on taln70  (list_a g8) 	(job[2] = 62585)
+               (Wed Mar  4 22:24:45 2020) 'vurt_apbclk_125_sibclk_50' is done (log_sz=4974, time=1:39 minutes sysTime[222158] status=fail)
+               (Wed Mar  4 22:24:46 2020) 'gmac3_ext_lbk' is done (log_sz=7165, time=2:51 minutes sysTime[234375] status=pass)
+               (Wed Mar  4 22:25:49 2020) 'vurt_apbclk_62_5_sibclk_50' is done (log_sz=6986, time=2:41 minutes sysTime[257845] status=pass)
+
+Set_Split_MultiHost
+    list_f 	 : 2
+    list_a 	 : 2
+Set_Split_MultiHost total = 4
+
+===========================================================
+=== Detect multihost_4 
+=== Update multihost_4 (was multihost_3)
+===========================================================
+All tests are complete 
+DVT_STATUS_REPORT: Activated 7 tests.  3:pass 1:fail 3:MultiHostRestart
+--------------------------------------------------------------------------------
+Rerun with Dump 0 tests (MAX_RERUN_DUMP='10' RERUN_DUMP_MODE='all').

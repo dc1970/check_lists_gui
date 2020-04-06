@@ -1,0 +1,389 @@
+#!/usr/local/bin/python3
+#======================================================
+# This script print report of aa dv list utilisation 
+# Usage:
+#   check_lists_guy
+#
+#   v.1 doronc Jan 2020
+#======================================================
+import tkinter as tk
+import os
+import sys
+from pathlib import Path
+from tkinter import messagebox
+
+if os.path.isfile('DVTool_list.log'):
+    dvtLog = open('DVTool_list.log','r').readlines()
+else:
+    dvtLog =''
+
+#Global Dictionaries
+listSizeDict = {}
+listSpinDict = {}
+useLblDict = {}
+jobsDict = {}
+lblDict = {}
+spinDict = {}
+tstStatusDict = {}
+
+tableLines = open('lists_table.txt', 'r').readlines()
+#tableLines = open('/projects/dv/bin/lists_table.txt', 'r').readlines()
+
+#------------------------------------------------------------------------------
+#initial Data base: Dictioanries and lists
+def init_db():
+    #intial tests status dictionary
+    in_test_list = False
+    for line in dvtLog:
+        if 'LIST OF TESTS =' in line:
+            in_test_list = True
+            continue
+        if in_test_list:
+            if ';' in line:
+                in_test_list = False
+                break
+            tstStatusDict[line.strip()] = 'Not-Run'
+    
+    #Initial listSizeDict: contains the size of each list
+    for line in tableLines:
+        listSizeDict[line.split()[0]] = line.split()[2]
+    
+    # intilize jobsDict with 0. Cotains the nuber of jobs for each list 
+    # To be updated later
+    for key in listSizeDict:
+        jobsDict[key] = 0
+    
+    #Collect the nuber of jobs for each list
+    # For he lists boc
+    j=0
+    for line in dvtLog:
+        line = line.split()
+        if 'SPLIT_MULTIHOST' in line:
+            for j in range(0, len(line)):
+                if 'list_' in line[j]:
+                    jobsDict[line[j][-2]] = int(line[j+1][0])
+        if len(line) == 3:
+            if ('list_' in line[0] and line[1] == ':'):
+                jobsDict[line[0][-1]] = int(line[2])   
+
+#---------------------------------------------------------------------------------
+#Run frg and update flow and lists status
+def get_lists():
+    
+    #frgLines = os.popen('frg').readlines()
+    frgLines = open('frg.txt','r').readlines()
+
+    clusterCountDict = {}
+    total_run = 0 
+    MainTxt.insert(tk.END,'===========================================================\
+                                 ====================================================\n')
+    
+    #initialize dictionary list
+    for line in tableLines:
+        cluster = line.split()[1]
+        clusterCountDict[cluster] = 0
+    
+    #Count how many user for each list/cluster
+    for line in frgLines:
+        if ('dv_run' in line):
+            cluster = line.split()[7]
+            # ver6 is dv6
+            if (cluster == 'ver6'):
+                cluster = 'dv6'
+            clusterCountDict[cluster] += 1
+    
+    #Print statstics
+    for line in tableLines:
+        l = line.split()
+        MainTxt.insert(tk.END,'list_' + l[0] + ' -- Cluster: ' + l[1] +       \
+                              '\t-- Total available: ' + l[2] + '\tUsed: ' +  \
+                               str(clusterCountDict[l[1]]) +                  \
+                               '\t------ Type: ' + l[3] + '\n' )
+        MainTxt.insert(tk.END,'----------------------------------------------'+\
+                                               '-----------------------------\n')
+        for frgline in frgLines:
+            user = frgline.split()[1]
+            if len(ProjLbx.curselection()) > 0:
+                proj = ProjLbx.get(ProjLbx.curselection()[0])
+            else:
+                proj = 'None'
+            global User
+            #Print only my jobs
+            if((User.get() == 1 ) and (user != os.getenv('USER'))):
+                continue
+            #Print jobs by project 
+            if((User.get() == 2 ) and (proj not in frgline.split())):
+                continue
+            if (l[1] in frgline.split()):
+                MainTxt.insert(tk.END,frgline.strip() + '\n')
+                total_run += 1
+            # ver6 is dv6
+            if (('ver6' in frgline) and (l[1] == 'dv6')):
+                MainTxt.insert(tk.END,frgline.strip() + '\n')
+                total_run += 1
+        MainTxt.insert(tk.END,'\n==================================================='+\
+                              '=====================================================\n\n')
+    MainTxt.insert(tk.END,'Total running tests: '+ str(total_run) + '\n')
+
+#------------------------------------------------------------------------------------------
+#Widgets routins
+#---------------
+#Update lists jobs according to the lists box selection
+def chngLists():
+    if os.path.isfile('DVTool_list.log'):
+        ls = os.popen('ls').readlines()
+    else:
+         tk.messagebox.showinfo("WARNNING!!!", "There are not test lists running from "+ \
+                                "current directory\nIt is not posible to update lists.")
+    for key, val in jobsDict.items():
+        #print("spin {} val: {}\n".format(key, listSpinDict[key].get()))
+        new_val = int(listSpinDict[key].get())
+        if restart_on.get():
+            rst = '_restart'
+        else:
+            rst = ''
+        if val != new_val:
+            if 'multihost_' in str(ls):
+                tk.messagebox.showinfo("WARNNIG!!!", "DVTOOL did not finish to update the "+\
+                                       "test lists.\n\nPlease try again in a few seconds.")
+                return None
+            print('touch multihost{}_{}_list_{}'.format(rst, listSpinDict[key].get(), key))
+            Path('multihost{}_{}_list_{}'.format(rst, listSpinDict[key].get(), key)).touch()
+            lblDict[key].set("run:  {}".format(new_val))
+            jobsDict[key] = new_val
+#---------------------------------------------------------------------------------------------
+# Reload lists information:
+# Clear text box and run get_lists() 
+def reload():
+    MainTxt.delete(1.0,tk.END)
+    get_lists()
+    update_progress()
+
+#Enable/Disable Project list box 
+def enProjList():
+    ProjLbx.configure(state='normal')
+
+def disProjList():
+    ProjLbx.configure(state='disabled')
+
+#------------------------------------------------------------------------
+#Update lists progress - Update button in progress box
+def update_progress():
+    passed = 0
+    fail = 0
+    no_run = 0
+    if os.path.isfile('DVTool_list.log'):
+        dvtLog = open('DVTool_list.log','r').readlines()
+    else:
+        pass_tests.set('There are no tests')
+        fail_tests.set('running in current')
+        not_run.set('directory')
+        return None
+    for line in dvtLog:
+        if 'items in the list' in line:
+            total = int(line.split()[2])
+            total_tests.set('Total: {}'.format(total))
+        if 'status=' in line:
+            if '=pass' in line:
+                passed += 1
+            elif '=MultiHostRestart' in line:
+                continue
+            else:
+                fail +=1 
+
+    pass_tests.set('Pass: {}'.format(passed))
+    fail_tests.set('FAIL: {}'.format(fail))
+    not_run.set('Not-Done: {}'.format(total-passed-fail))
+
+#---------------------------------------------------------------------
+#Update progress details in text box - Datails button
+def update_progress_details():
+    MainTxt.delete(1.0,tk.END)
+    dvtLog = open('DVTool_list.log','r').readlines()
+    
+    #Update Status
+    for line in dvtLog:
+        if 'is Running from' in line:
+            tstStatusDict[line.split()[0]] = 'Running'
+        if 'status=' in line:
+            if '=pass' in line:
+                tstStatusDict[line.split()[5][1:-1]] = 'Pass'
+            elif '=MultiHostRestart' in line:
+                tstStatusDict[line.split()[5][1:-1]] = 'Not-Run'
+            else:
+                tstStatusDict[line.split()[5][1:-1]] = 'Fail'
+    
+    MainTxt.insert(tk.END, 'Currently running\n')
+    MainTxt.insert(tk.END, '--------------\n')
+    for key, val in tstStatusDict.items():
+        if val == 'Running':
+            MainTxt.insert(tk.END,'{}\n'.format(key))   
+   
+    MainTxt.insert(tk.END, '\n\nNot run yet\n')
+    MainTxt.insert(tk.END, '--------------\n')
+    for key, val in tstStatusDict.items():
+        if val == 'Not-Run':
+            MainTxt.insert(tk.END,'{}\n'.format(key))   
+    
+    MainTxt.insert(tk.END, '\n\nPassing tests\n')
+    MainTxt.insert(tk.END, '--------------\n')
+    for key, val in tstStatusDict.items():
+        if val == 'Pass':
+            MainTxt.insert(tk.END,'{}\n'.format(key))
+
+    MainTxt.insert(tk.END, '\n\nFailing tests\n')
+    MainTxt.insert(tk.END, '--------------\n')
+    for key, val in tstStatusDict.items():
+        if val == 'Fail':
+            MainTxt.insert(tk.END,'{}\n'.format(key))
+
+#End of routines
+#################################################################################
+#Build GUI
+#---------
+#initial Data-Base
+init_db()
+
+#main window
+root = tk.Tk()
+root.title('Check Lists:  ' + str(os.getcwdb())[2:-1])
+S = tk.Scrollbar(root)
+
+#Text Box
+MainTxt = tk.Text(root, height=50, width=110,fg="black")
+S.pack(side=tk.RIGHT, fill=tk.Y)
+MainTxt.pack(side=tk.RIGHT, fill=tk.Y)
+S.config(command=MainTxt.yview)
+MainTxt.config(yscrollcommand=S.set)
+
+########################################################################
+#Flow status box 
+#---------------
+userFrame = tk.LabelFrame(root, text="Flow Status", font=("Courier", 10))
+userFrame.pack(side=tk.TOP,pady=20,padx=10)
+
+#Select Users Radio buttons
+User = tk.IntVar()
+UserRBtn1 = tk.Radiobutton(userFrame, text="All Usres", variable=User, value=0, 
+                           command = disProjList, padx=10)
+UserRBtn1.grid(row=0, sticky='W')
+UserRBtn2 = tk.Radiobutton(userFrame, text="Only me", variable=User, value=1, 
+                           command = disProjList, padx=10)
+UserRBtn2.grid(row=1, sticky='W')
+UserRBtn3 = tk.Radiobutton(userFrame, text="By project", variable=User, value=2, 
+                           command = enProjList, padx=10)
+UserRBtn3.grid(row=2, sticky='W')
+
+#Project Lists
+ProjLbx = tk.Listbox(userFrame,width=10, height=4)
+ProjLbx.insert(1, 'alon')
+ProjLbx.insert(2, 'arbel')
+ProjLbx.insert(3, 'gamla')
+ProjLbx.activate(1)	
+ProjLbx.grid(row=3,padx=5, pady=10)
+ProjLbx.configure(state='disabled')
+############################################################################
+#Refresh button
+RefreshBtn = tk.Button(userFrame, 
+                   text="RELOAD", 
+                   fg="black",
+                   command=reload)
+RefreshBtn.grid(row=4, padx=5, pady=5)
+
+######################################################################
+# Multihost control
+# -----------------
+restart_on = tk.IntVar()
+
+MhostFrame = tk.LabelFrame(root, text="Lists Control", font=("Courier", 10))
+MhostFrame.pack(side=tk.TOP,padx=10, expand=1)
+
+# Build list spin boxes
+#----------------------
+
+
+#Build spinboxes system
+i=0
+for key in listSizeDict:
+    Lbl = tk.Label(MhostFrame, text="list_{}:".format(key),padx=5, pady=5)
+    Lbl.grid(row=i)
+    spinDict[key] = tk.StringVar()
+    listSpinDict[key] = tk.Spinbox(MhostFrame, from_=0, to=int(listSizeDict[key]), 
+                                   width=2, textvariable=spinDict[key])
+    listSpinDict[key].grid(row=i,column=1)
+    spinDict[key].set(jobsDict[key])
+    lblDict[key] = tk.StringVar()
+    useLblDict[key] = tk.Label(MhostFrame, textvariable=lblDict[key], padx=5, pady=5)
+    useLblDict[key].grid(row=i, column=3)
+    lblDict[key].set("run: {}".format(jobsDict[key]))
+    i += 1
+#Restart check button
+restartCheckB = tk.Checkbutton(MhostFrame, text="Restart", variable = restart_on, 
+                               onvalue=1, offvalue=0, pady = 5)
+restartCheckB.grid(row=i+1, columnspan=2)
+restartCheckB.select()
+
+
+GoBtn = tk.Button(MhostFrame, 
+                   text="GO", 
+                   fg="blue",
+                   pady=5,
+                   command=chngLists )
+GoBtn.grid(row=i+2, columnspan=2, pady=10)
+
+#End off Routins 
+############################################################
+#Build widgets
+
+#progress box
+#------------
+progressFrame = tk.LabelFrame(root, text="Tests progress", font=("Courier", 10))
+progressFrame.pack(side=tk.TOP, pady=2, padx=10)
+
+progLabel = tk.Label(progressFrame,  padx=5, pady=5)
+progLabel.grid(row=0)
+
+total_tests = tk.StringVar()
+pass_tests = tk.StringVar()
+fail_tests = tk.StringVar()
+not_run = tk.StringVar()
+
+totalLbl= tk.Label(progressFrame, textvariable=total_tests, padx=5, pady=5)
+totalLbl.grid(row=0, sticky='w')
+passLbl= tk.Label(progressFrame, textvariable=pass_tests, padx=5, pady=5)
+passLbl.grid(row=1, sticky='w')
+failLbl= tk.Label(progressFrame, textvariable=fail_tests, padx=5, pady=5)
+failLbl.grid(row=2, sticky='w')
+norunLbl= tk.Label(progressFrame, textvariable=not_run, padx=5, pady=5)
+norunLbl.grid(row=3, sticky='w')
+
+
+progUpdateBtn=tk.Button(progressFrame, 
+               text="Update", 
+               fg="black",
+               command=update_progress)
+progUpdateBtn.grid(row=4, padx=2, pady = 5)
+progDetailBtn=tk.Button(progressFrame, 
+               text="Details", 
+               fg="black",
+               command=update_progress_details)
+progDetailBtn.grid(row=4, column=1, padx=2, pady = 5)
+
+
+############################################################
+
+#Quit button
+QuitBtn = tk.Button(root, 
+                   text="QUIT", 
+                   fg="red",
+                   command=root.destroy)
+QuitBtn.pack(side=tk.BOTTOM, padx=5, pady = 5)
+
+############################################################$
+
+#Lunch the application
+root.wait_visibility()
+get_lists() 
+update_progress()
+tk.mainloop()
+   
