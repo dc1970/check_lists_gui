@@ -13,9 +13,9 @@ from pathlib import Path
 from tkinter import messagebox
 
 if os.path.isfile('DVTool_list.log'):
-    dvtLog = open('DVTool_list.log','r').readlines()
+    dvtLog = open('DVTool_list.log', 'r').readlines()
 else:
-    dvtLog =''
+    dvtLog: str =''
 
 #Global Dictionaries
 listSizeDict = {}
@@ -68,6 +68,8 @@ def init_db():
 
 #---------------------------------------------------------------------------------
 #Run frg and update flow and lists status
+
+
 def get_lists():
     
     #frgLines = os.popen('frg').readlines()
@@ -200,7 +202,7 @@ def update_progress():
 def update_progress_details():
     MainTxt.delete(1.0,tk.END)
     dvtLog = open('DVTool_list.log','r').readlines()
-    
+
     #Update Status
     for line in dvtLog:
         if 'is Running from' in line:
@@ -247,20 +249,24 @@ init_db()
 #main window
 root = tk.Tk()
 root.title('Check Lists:  ' + str(os.getcwdb())[2:-1])
-S = tk.Scrollbar(root)
+rightFrame = tk.Frame(root)
+leftFrame = tk.Frame(root)
+
+S = tk.Scrollbar(rightFrame)
 
 #Text Box
-MainTxt = tk.Text(root, height=50, width=110,fg="black")
-S.pack(side=tk.RIGHT, fill=tk.Y)
-MainTxt.pack(side=tk.RIGHT, fill=tk.Y)
+MainTxt = tk.Text(rightFrame, height=50, width=110, fg="black")
+MainTxt.grid(row=0, column=0)
+S.grid(row=0, column=1)
+
 S.config(command=MainTxt.yview)
 MainTxt.config(yscrollcommand=S.set)
 
 ########################################################################
 #Flow status box 
 #---------------
-userFrame = tk.LabelFrame(root, text="Flow Status", font=("Courier", 10))
-userFrame.pack(side=tk.TOP,pady=20,padx=10)
+userFrame = tk.LabelFrame(leftFrame, text="Flow Status", font=("Courier", 10))
+userFrame.grid(row=0, column=0, pady=20, padx=10)
 
 #Select Users Radio buttons
 User = tk.IntVar()
@@ -295,8 +301,8 @@ RefreshBtn.grid(row=4, padx=5, pady=5)
 # -----------------
 restart_on = tk.IntVar()
 
-MhostFrame = tk.LabelFrame(root, text="Lists Control", font=("Courier", 10))
-MhostFrame.pack(side=tk.TOP,padx=10, expand=1)
+MhostFrame = tk.LabelFrame(leftFrame, text="Lists Control", font=("Courier", 10))
+MhostFrame.grid(row=1, column=0, padx=10)
 
 # Build list spin boxes
 #----------------------
@@ -337,8 +343,8 @@ GoBtn.grid(row=i+2, columnspan=2, pady=10)
 
 #progress box
 #------------
-progressFrame = tk.LabelFrame(root, text="Tests progress", font=("Courier", 10))
-progressFrame.pack(side=tk.TOP, pady=2, padx=10)
+progressFrame = tk.LabelFrame(leftFrame, text="Tests progress", font=("Courier", 10))
+progressFrame.grid(row=2, column=0, pady=2, padx=10)
 
 progLabel = tk.Label(progressFrame,  padx=5, pady=5)
 progLabel.grid(row=0)
@@ -373,16 +379,18 @@ progDetailBtn.grid(row=4, column=1, padx=2, pady = 5)
 ############################################################
 
 #Quit button
-QuitBtn = tk.Button(root, 
+QuitBtn = tk.Button(leftFrame,
                    text="QUIT", 
                    fg="red",
                    command=root.destroy)
-QuitBtn.pack(side=tk.BOTTOM, padx=5, pady = 5)
+QuitBtn.grid(row=3, column=0, padx=5, pady = 5)
 
+leftFrame.grid(row=0, column=0)
+rightFrame.grid(row=0, column=1)
 ############################################################$
 
 #Lunch the application
-root.wait_visibility()
+leftFrame.wait_visibility()
 get_lists() 
 update_progress()
 tk.mainloop()
